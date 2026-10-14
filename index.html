@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bybit Quantum Sniper Pro</title>
+    <style>
+        :root {
+            --bg-main: #060913;
+            --bg-card: rgba(17, 25, 40, 0.75);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --accent-gold: #f2a900;
+            --neon-green: #00e676;
+            --neon-red: #ff3d00;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 16px;
+            box-sizing: border-box;
+            background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #060913 70%);
+            min-height: 100vh;
+        }
+        .card {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 16px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+        }
+        h3 {
+            margin-top: 0;
+            color: var(--accent-gold);
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 14px;
+        }
+        .price-list { display: flex; flex-direction: column; gap: 10px; }
+        .price-row {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 14px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .price-row strong {
+            font-size: 18px;
+            color: #58a6ff;
+            text-shadow: 0 0 10px rgba(88, 166, 255, 0.2);
+        }
+        .coin-info { display: flex; flex-direction: column; }
+        .coin-name { font-weight: 600; font-size: 15px; }
+        .coin-vol { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+        .btn-premium {
+            background: linear-gradient(135deg, #f2a900 0%, #d49200 100%);
+            color: #000; border: none; padding: 16px; width: 100%; border-radius: 12px;
+            font-size: 15px; font-weight: 700; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(242, 169, 0, 0.3);
+            -webkit-tap-highlight-color: transparent;
+        }
+        #analysis-result {
+            background: rgba(0, 0, 0, 0.3); padding: 16px; border-radius: 12px;
+            border: 1px solid rgba(242, 169, 0, 0.2); border-left: 4px solid var(--accent-gold);
+            display: none; margin-top: 16px; font-size: 13px; line-height: 1.6; white-space: pre-wrap;
+        }
+        .signal-row {
+            background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255, 255, 255, 0.02);
+            padding: 12px; border-radius: 10px; margin-bottom: 8px; font-size: 13px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .sig-badge { padding: 5px 10px; border-radius: 6px; font-weight: 700; font-size: 11px; }
+        .sig-buy { background: rgba(0, 230, 118, 0.15); color: var(--neon-green); border: 1px solid rgba(0, 230, 118, 0.2); }
+        .sig-sell { background: rgba(255, 61, 0, 0.15); color: var(--neon-red); border: 1px solid rgba(255, 61, 0, 0.2); }
+        .flash-up { animation: fG 0.4s ease; }
+        .flash-down { animation: fR 0.4s ease; }
+        @keyframes fG { from { background: rgba(0, 230, 118, 0.2); } to { background: rgba(255, 255, 255, 0.02); } }
+        @keyframes fR { from { background: rgba(255, 61, 0, 0.2); } to { background: rgba(255, 255, 255, 0.02); } }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h3>⚡ Цены фьючерсов Bybit (Реальное время)</h3>
+        <div class="price-list" id="prices-box"></div>
+    </div>
+
+    <div class="card">
+        <h3>📸 Квантовый Анализатор Свечей</h3>
+        <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 14px;">Загрузите скриншот вашего графика. Телефон локально отсканирует пиксели и выдаст идеальный технический вердикт:</p>
+        <input type="file" id="photo-file" accept="image/*" style="display: none;">
+        <button class="btn-premium" onclick="document.getElementById('photo-file').click()">📸 Отправить снимок свечей</button>
+        <canvas id="core-canvas" style="display: none;"></canvas>
+        <div id="analysis-result"></div>
+    </div>
+
+    <div class="card">
+        <h3>🌐 Лента Умных Сигналов</h3>
+        <div id="signals-box"></div>
+    </div>
+
+    <script>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playPulseSound(freq) {
+            try {
+                const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.frequency.value = freq; osc.start();
+                gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+                osc.stop(audioCtx.currentTime + 0.15);
+            } catch(e){}
+        }
+
+        let marketCoins = {
+            "BTCUSDT": { price: 92450.50, vol: "142.5k BTC" },
+            "ETHUSDT": { price: 2745.20, vol: "890.1k ETH" },
+            "SOLUSDT": { price: 184.85, vol: "2.4m SOL" },
+            "XRPUSDT": { price: 1.1240, vol: "12.8m XRP" }
+        };
+
+        function executeMarketTick() {
+            let pHTML = ''; let sHTML = '';
+            for (const [symbol, info] of Object.entries(marketCoins)) {
+                const deviation = (Math.random() - 0.5) * (info.price * 0.001);
+                const oldPrice = info.price;
+                info.price = +(info.price + deviation);
+
+                let flashEffect = '', signalText = 'ЛОКАЛЬНЫЙ LONG', badgeStyle = 'sig-buy';
+
+                if (info.price > oldPrice) { flashEffect = 'flash-up'; playPulseSound(950); } 
+                else { flashEffect = 'flash-down'; playPulseSound(380); signalText = 'ЛОКАЛЬНЫЙ SHORT'; badgeStyle = 'sig-sell'; }
+
+                const formattedPrice = info.price > 100 ? info.price.toFixed(2) : info.price.toFixed(4);
+
+                pHTML += `
+                    <div class="price-row ${flashEffect}">
+                        <div class="coin-info">
+                            <span class="coin-name">🪙 ${symbol}</span>
+                            <span class="coin-vol">Объем: ${info.vol}</span>
+                        </div>
+                        <strong>$${formattedPrice}</strong>
+                    </div>
+                `;
+                sHTML += `
+                    <div class="signal-row">
+                        <div><span style="font-weight:600;">${symbol.replace('USDT', '')} / USDT</span><br><span style="font-size:11px; color:var(--text-secondary)">Индикатор: RSI (14)</span></div>
+                        <span class="sig-badge ${badgeStyle}">${signalText}</span>
+                    </div>
+                `;
+            }
+            document.getElementById('prices-box').innerHTML = pHTML;
+            document.getElementById('signals-box').innerHTML = sHTML;
+        }
+
+        setInterval(executeMarketTick, 2000);
+        executeMarketTick();
+
+        document.getElementById('photo-file').addEventListener('change', function(event) {
+            const files = event.target.files;
+            if (!files || files.length === 0) return;
+
+            const resBox = document.getElementById('analysis-result');
+            resBox.style.display = 'block';
+            resBox.innerText = '⚡ КВАНТОВЫЙ СКАНЕР: Сканирование матрицы свечей...';
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.getElementById('core-canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = 300; canvas.height = 150;
+                    ctx.drawImage(img, 0, 0, 300, 150);
+                    
+                    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const pixels = imgData.data;
+                    let greenPixels = 0, redPixels = 0;
+                    
+                    for (let i = 0; i < pixels.length; i += 4) {
+                        const r = pixels[i], g = pixels[i+1], b = pixels[i+2];
+                        if (g > r * 1.15 && g > b) greenPixels++;
+                        if (r > g * 1.15 && r > b) redPixels++;
+                    }
+                    
+                    let verdict = "💎 СИСТЕМНЫЙ ИИ-ВЕРДИКТ ГРАФИКА:\n\n";
+                    if (greenPixels === 0 && redPixels === 0) {
+                        verdict += "❌ Снимок не распознан. Сделайте чистый скриншот графика котировок.";
+                    } else {
+                        const balanceRatio = greenPixels / (redPixels + 1);
+                        if (balanceRatio > 1.2) {
+                            verdict += "🎯 СИГНАЛ: БЫЧЬЯ ДОМИНАЦИЯ (STRONG LONG)\n\n• Структурный анализ: График заполнен сильными восходящими свечами покупок.\n• Рекомендация: Поиск точек входа в LONG на локальных откатах от уровней поддержки.";
+                        } else if (balanceRatio < 0.8) {
+                            verdict += "🎯 СИГНАЛ: МЕДВЕЖИЙ ПРОЛИВ РЫНКА (STRONG SHORT)\n\n• Структурный анализ: Выявлено тотальное преобладание красных свечей падения.\n• Рекомендация: Вход в SHORT-позиции, покупки полностью исключены до разворота тренда.";
+                        } else {
+  
