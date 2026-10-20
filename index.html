@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TM BAZAR — Главная Доска Объявлений Туркменистана</title>
+    <title>TM BAZAR — Доска Объявлений Туркменистана</title>
     <style>
         :root {
             --bg-color: #0b0e14;
@@ -18,7 +18,6 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
         body { background: radial-gradient(circle at top, #151c2c, var(--bg-color)); color: var(--text-main); min-height: 100vh; padding-bottom: 50px; }
 
-        /* Роскошная шапка сайта */
         header {
             position: sticky; top: 0; z-index: 100;
             backdrop-filter: blur(12px);
@@ -44,7 +43,6 @@
         }
         .btn-add:hover { transform: scale(1.05); }
 
-        /* Навигация по категориям */
         .categories-bar {
             display: flex; gap: 10px; overflow-x: auto;
             padding: 20px 5%; background: rgba(0,0,0,0.2);
@@ -63,7 +61,6 @@
 
         .container { max-width: 1200px; margin: 30px auto; padding: 0 15px; }
 
-        /* Сетка объявлений */
         .ads-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -100,7 +97,6 @@
         }
         .btn-call:hover { background: var(--accent-green); color: #000; }
 
-        /* Модальное окно добавления объявления */
         .modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px);
@@ -124,6 +120,21 @@
         }
         .form-control:focus { border-color: var(--accent-gold); outline: none; }
 
+        /* Стиль для кнопки загрузки фото */
+        .file-upload-btn {
+            background: #1e2533;
+            border: 1px dashed var(--accent-gold);
+            color: var(--accent-gold);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 14px;
+            display: block;
+        }
+        .file-upload-btn input[type="file"] { display: none; }
+        .img-preview { width: 100%; max-height: 150px; object-fit: cover; border-radius: 8px; margin-top: 10px; display: none; }
+
         .rules-note {
             font-size: 11px; color: #f6465d; background: rgba(246, 70, 93, 0.1);
             padding: 10px; border-radius: 8px; margin-bottom: 15px; border-left: 3px solid #f6465d;
@@ -132,13 +143,11 @@
 </head>
 <body>
 
-    <!-- ШАПКА -->
     <header>
         <div class="logo">✨ TM BAZAR</div>
         <button class="btn-add" onclick="openModal()">+ Разместить объявление</button>
     </header>
 
-    <!-- МЕНЮ КАТЕГОРИЙ -->
     <div class="categories-bar">
         <button class="cat-btn active" onclick="filterCategory('all')">🌐 Все объявления</button>
         <button class="cat-btn" onclick="filterCategory('Работа')">💼 Работа и Вакансии</button>
@@ -147,16 +156,12 @@
         <button class="cat-btn" onclick="filterCategory('Авто')">🚗 Авто и Запчасти</button>
     </div>
 
-    <!-- ОСНОВНОЙ КОНТЕНТ -->
     <div class="container">
         <h2 id="section-title" style="color: var(--accent-gold); font-size: 20px;">🔥 Все свежие объявления</h2>
         
-        <div class="ads-grid" id="ads-container">
-            <!-- Объявления загружаются автоматически -->
-        </div>
+        <div class="ads-grid" id="ads-container"></div>
     </div>
 
-    <!-- МОДАЛЬНОЕ ОКНО ДОБАВЛЕНИЯ -->
     <div class="modal" id="addModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -165,7 +170,7 @@
             </div>
 
             <div class="rules-note">
-                🚫 <b>Правила сервиса:</b> Запрещено размещение материалов 18+, порнографии, нецензурной лексики и нелегальных товаров. Нарушители блокируются автоматически.
+                🚫 <b>Правила:</b> Запрещен контент 18+, порнография и нецензурная лексика. Объявления с нарушениями удаляются.
             </div>
 
             <form id="addForm" onsubmit="submitAd(event)">
@@ -181,27 +186,32 @@
 
                 <div class="form-group">
                     <label>Название объявления *</label>
-                    <input type="text" class="form-control" id="adTitle" placeholder="Например: Продаю iPhone 15 Pro или Требуется водитель" required>
+                    <input type="text" class="form-control" id="adTitle" placeholder="Например: Продаю iPhone 15 Pro" required>
                 </div>
 
                 <div class="form-group">
-                    <label>Цена / Зарплата (в манатах TMT или $) *</label>
-                    <input type="text" class="form-control" id="adPrice" placeholder="Например: 5 000 TMT или Договорная" required>
+                    <label>Цена / Зарплата *</label>
+                    <input type="text" class="form-control" id="adPrice" placeholder="Например: 5 000 TMT" required>
                 </div>
 
                 <div class="form-group">
                     <label>Ваше Имя *</label>
-                    <input type="text" class="form-control" id="adName" placeholder="Введите ваше имя" required>
+                    <input type="text" class="form-control" id="adName" placeholder="Введите имя" required>
                 </div>
 
                 <div class="form-group">
-                    <label>Номер телефона для связи *</label>
+                    <label>Номер телефона *</label>
                     <input type="tel" class="form-control" id="adPhone" placeholder="+993 6X XX-XX-XX" required>
                 </div>
 
+                <!-- ПОЛЕ ДЛЯ ВЫБОРА ФОТО ИЗ ПАМЯТИ ТЕЛЕФОНА -->
                 <div class="form-group">
-                    <label>Ссылка на фото товара/работы (URL)</label>
-                    <input type="url" class="form-control" id="adImg" placeholder="https://ссылка-на-картинку.jpg (если есть)">
+                    <label>Фотография вещи</label>
+                    <label class="file-upload-btn">
+                        📷 Выбрать фото из галереи
+                        <input type="file" id="adFile" accept="image/*" onchange="previewFile()">
+                    </label>
+                    <img id="preview" class="img-preview" alt="Предпросмотр">
                 </div>
 
                 <button type="submit" class="btn-add" style="width: 100%; padding: 12px; margin-top: 10px;">Опубликовать объявление</button>
@@ -209,9 +219,9 @@
         </div>
     </div>
 
-    <!-- СКРИПТ РАБОТЫ САЙТА -->
     <script>
-        // Начальная база объявлений
+        let uploadedBase64Image = "";
+
         let adsData = [
             {
                 id: 1,
@@ -230,29 +240,27 @@
                 name: "Сердар",
                 phone: "+99364123456",
                 img: "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=500&q=80"
-            },
-            {
-                id: 3,
-                category: "Недвижимость",
-                title: "Сдается 3-комнатная квартира в центре Ашхабада",
-                price: "6 000 TMT / мес",
-                name: "Майса",
-                phone: "+99361987654",
-                img: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=500&q=80"
-            },
-            {
-                id: 4,
-                category: "Авто",
-                title: "Toyota Camry SE 2021 в идеальном состоянии",
-                price: "220 000 TMT",
-                name: "Бегенч",
-                phone: "+99362112233",
-                img: "https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=500&q=80"
             }
         ];
 
-        // Запрещенные слова для модерации (Анти-порнография / Анти-спам)
         const BANNED_WORDS = ["порно", "18+", "porno", "sex", "секс", "интим", "казино", "нарко"];
+
+        // Функция предпросмотра фото из памяти телефона
+        function previewFile() {
+            const preview = document.getElementById('preview');
+            const file = document.getElementById('adFile').files[0];
+            const reader = new FileReader();
+
+            reader.addEventListener("load", function () {
+                preview.src = reader.result;
+                preview.style.display = "block";
+                uploadedBase64Image = reader.result; // Сохраняем фото в формате Base64
+            }, false);
+
+            if (file) {
+                reader.readAsDataURL(file);
+            }
+        }
 
         function renderAds(filter = 'all') {
             const container = document.getElementById('ads-container');
@@ -270,7 +278,7 @@
                 const card = document.createElement('div');
                 card.className = 'ad-card';
                 card.innerHTML = `
-                    <img src="${ad.img || defaultImg}" class="ad-img" alt="${ad.title}" onerror="this.src='${defaultImg}'">
+                    <img src="${ad.img || defaultImg}" class="ad-img" alt="${ad.title}">
                     <div class="ad-body">
                         <div>
                             <span class="ad-badge">${ad.category}</span>
@@ -296,7 +304,11 @@
         }
 
         function openModal() { document.getElementById('addModal').style.display = 'flex'; }
-        function closeModal() { document.getElementById('addModal').style.display = 'none'; }
+        function closeModal() { 
+            document.getElementById('addModal').style.display = 'none'; 
+            document.getElementById('preview').style.display = 'none';
+            uploadedBase64Image = "";
+        }
 
         function submitAd(e) {
             e.preventDefault();
@@ -306,7 +318,6 @@
             const price = document.getElementById('adPrice').value;
             const name = document.getElementById('adName').value;
             const phone = document.getElementById('adPhone').value;
-            const img = document.getElementById('adImg').value;
 
             // Проверка модерации
             const fullText = (title + " " + name).toLowerCase();
@@ -317,10 +328,11 @@
                 return;
             }
 
-            // Добавляем новое объявление в начало
+            // Добавляем объявление с загруженным из телефона фото
             adsData.unshift({
                 id: Date.now(),
-                category, title, price, name, phone, img
+                category, title, price, name, phone, 
+                img: uploadedBase64Image
             });
 
             renderAds('all');
@@ -329,7 +341,6 @@
             alert("✅ Ваше объявление успешно опубликовано!");
         }
 
-        // Запуск при загрузке
         renderAds();
     </script>
 </body>
