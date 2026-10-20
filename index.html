@@ -2,205 +2,440 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bybit Quantum Sniper Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRO TRADING TERMINAL — Крипто & CFD Сигналы</title>
     <style>
         :root {
-            --bg-main: #060913;
-            --bg-card: rgba(17, 25, 40, 0.75);
-            --border-color: rgba(255, 255, 255, 0.08);
-            --accent-gold: #f2a900;
-            --neon-green: #00e676;
-            --neon-red: #ff3d00;
-            --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
+            --bg-main: #0a0e17;
+            --bg-card: rgba(21, 27, 42, 0.75);
+            --border: rgba(255, 255, 255, 0.08);
+            --accent-gold: #f0b90b;
+            --accent-blue: #00f2fe;
+            --green: #0ecb81;
+            --red: #f6465d;
+            --text-main: #f0f3f8;
+            --text-sub: #848e9c;
         }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            background-color: var(--bg-main);
-            color: var(--text-primary);
-            margin: 0;
-            padding: 16px;
+
+        * {
             box-sizing: border-box;
-            background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #060913 70%);
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background: radial-gradient(circle at top right, #111a2e, var(--bg-main));
+            color: var(--text-main);
             min-height: 100vh;
+            padding-bottom: 50px;
         }
-        .card {
-            background: var(--bg-card);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 18px;
-            margin-bottom: 16px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+
+        /* Running Ticker Tape Header */
+        .ticker-wrapper {
+            background: rgba(10, 14, 23, 0.9);
+            border-bottom: 1px solid var(--border);
+            height: 40px;
+            overflow: hidden;
         }
-        h3 {
-            margin-top: 0;
-            color: var(--accent-gold);
-            font-size: 13px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 14px;
-        }
-        .price-list { display: flex; flex-direction: column; gap: 10px; }
-        .price-row {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            padding: 14px;
-            border-radius: 12px;
+
+        /* Glassmorphism Navigation Menu */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(12px);
+            background: rgba(10, 14, 23, 0.8);
+            border-bottom: 1px solid var(--border);
+            padding: 15px 5%;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        .price-row strong {
+
+        .logo {
+            font-size: 22px;
+            font-weight: 800;
+            background: linear-gradient(45deg, var(--accent-gold), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        nav {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-sub);
+            padding: 10px 18px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 2px solid var(--accent-gold);
+        }
+
+        .container {
+            max-width: 1350px;
+            margin: 25px auto;
+            padding: 0 20px;
+        }
+
+        /* Content Sections */
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        /* Cards and Styling */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        h2 {
             font-size: 18px;
-            color: #58a6ff;
-            text-shadow: 0 0 10px rgba(88, 166, 255, 0.2);
+            color: var(--accent-gold);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        .coin-info { display: flex; flex-direction: column; }
-        .coin-name { font-weight: 600; font-size: 15px; }
-        .coin-vol { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
-        .btn-premium {
-            background: linear-gradient(135deg, #f2a900 0%, #d49200 100%);
-            color: #000; border: none; padding: 16px; width: 100%; border-radius: 12px;
-            font-size: 15px; font-weight: 700; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(242, 169, 0, 0.3);
-            -webkit-tap-highlight-color: transparent;
+
+        /* Signals Styling */
+        .signal-card {
+            background: rgba(255,255,255,0.02);
+            border-left: 4px solid var(--green);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        #analysis-result {
-            background: rgba(0, 0, 0, 0.3); padding: 16px; border-radius: 12px;
-            border: 1px solid rgba(242, 169, 0, 0.2); border-left: 4px solid var(--accent-gold);
-            display: none; margin-top: 16px; font-size: 13px; line-height: 1.6; white-space: pre-wrap;
+        .signal-card.sell {
+            border-left-color: var(--red);
         }
-        .signal-row {
-            background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255, 255, 255, 0.02);
-            padding: 12px; border-radius: 10px; margin-bottom: 8px; font-size: 13px;
-            display: flex; justify-content: space-between; align-items: center;
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
         }
-        .sig-badge { padding: 5px 10px; border-radius: 6px; font-weight: 700; font-size: 11px; }
-        .sig-buy { background: rgba(0, 230, 118, 0.15); color: var(--neon-green); border: 1px solid rgba(0, 230, 118, 0.2); }
-        .sig-sell { background: rgba(255, 61, 0, 0.15); color: var(--neon-red); border: 1px solid rgba(255, 61, 0, 0.2); }
-        .flash-up { animation: fG 0.4s ease; }
-        .flash-down { animation: fR 0.4s ease; }
-        @keyframes fG { from { background: rgba(0, 230, 118, 0.2); } to { background: rgba(255, 255, 255, 0.02); } }
-        @keyframes fR { from { background: rgba(255, 61, 0, 0.2); } to { background: rgba(255, 255, 255, 0.02); } }
+        .bg-green { background: rgba(14, 203, 129, 0.15); color: var(--green); }
+        .bg-red { background: rgba(246, 70, 93, 0.15); color: var(--red); }
+
+        /* Wallet Box */
+        .wallet-box {
+            background: linear-gradient(135deg, rgba(240, 185, 11, 0.1), rgba(0, 242, 254, 0.1));
+            border: 1px solid var(--accent-gold);
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+        .wallet-address {
+            background: #000;
+            padding: 10px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 13px;
+            word-break: break-all;
+            margin-top: 8px;
+            color: var(--accent-gold);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .copy-btn {
+            background: var(--accent-gold);
+            color: #000;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* Platforms Grid */
+        .platforms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        .platform-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        .platform-item:hover { transform: translateY(-5px); }
+        .btn-trade {
+            display: inline-block;
+            width: 100%;
+            padding: 10px;
+            margin-top: 12px;
+            background: var(--accent-gold);
+            color: #000;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 6px;
+        }
+
+        @media (max-width: 900px) {
+            .grid-2 { grid-template-columns: 1fr; }
+            nav { flex-wrap: wrap; }
+        }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <h3>⚡ Цены фьючерсов Bybit (Реальное время)</h3>
-        <div class="price-list" id="prices-box"></div>
-    </div>
-
-    <div class="card">
-        <h3>📸 Квантовый Анализатор Свечей</h3>
-        <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 14px;">Загрузите скриншот вашего графика. Телефон локально отсканирует пиксели и выдаст идеальный технический вердикт:</p>
-        <input type="file" id="photo-file" accept="image/*" style="display: none;">
-        <button class="btn-premium" onclick="document.getElementById('photo-file').click()">📸 Отправить снимок свечей</button>
-        <canvas id="core-canvas" style="display: none;"></canvas>
-        <div id="analysis-result"></div>
-    </div>
-
-    <div class="card">
-        <h3>🌐 Лента Умных Сигналов</h3>
-        <div id="signals-box"></div>
-    </div>
-
-    <script>
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        function playPulseSound(freq) {
-            try {
-                const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-                osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.frequency.value = freq; osc.start();
-                gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
-                osc.stop(audioCtx.currentTime + 0.15);
-            } catch(e){}
-        }
-
-        let marketCoins = {
-            "BTCUSDT": { price: 92450.50, vol: "142.5k BTC" },
-            "ETHUSDT": { price: 2745.20, vol: "890.1k ETH" },
-            "SOLUSDT": { price: 184.85, vol: "2.4m SOL" },
-            "XRPUSDT": { price: 1.1240, vol: "12.8m XRP" }
-        };
-
-        function executeMarketTick() {
-            let pHTML = ''; let sHTML = '';
-            for (const [symbol, info] of Object.entries(marketCoins)) {
-                const deviation = (Math.random() - 0.5) * (info.price * 0.001);
-                const oldPrice = info.price;
-                info.price = +(info.price + deviation);
-
-                let flashEffect = '', signalText = 'ЛОКАЛЬНЫЙ LONG', badgeStyle = 'sig-buy';
-
-                if (info.price > oldPrice) { flashEffect = 'flash-up'; playPulseSound(950); } 
-                else { flashEffect = 'flash-down'; playPulseSound(380); signalText = 'ЛОКАЛЬНЫЙ SHORT'; badgeStyle = 'sig-sell'; }
-
-                const formattedPrice = info.price > 100 ? info.price.toFixed(2) : info.price.toFixed(4);
-
-                pHTML += `
-                    <div class="price-row ${flashEffect}">
-                        <div class="coin-info">
-                            <span class="coin-name">🪙 ${symbol}</span>
-                            <span class="coin-vol">Объем: ${info.vol}</span>
-                        </div>
-                        <strong>$${formattedPrice}</strong>
-                    </div>
-                `;
-                sHTML += `
-                    <div class="signal-row">
-                        <div><span style="font-weight:600;">${symbol.replace('USDT', '')} / USDT</span><br><span style="font-size:11px; color:var(--text-secondary)">Индикатор: RSI (14)</span></div>
-                        <span class="sig-badge ${badgeStyle}">${signalText}</span>
-                    </div>
-                `;
+    <!-- 1. Ticker Tape Header -->
+    <div class="ticker-wrapper">
+        <div class="tradingview-widget-container">
+            <div class="tradingview-widget-container__widget"></div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+            {
+            "symbols": [
+                {"proName": "BITSTAMP:BTCUSD", "title": "BTC/USD"},
+                {"proName": "BITSTAMP:ETHUSD", "title": "ETH/USD"},
+                {"proName": "BINANCE:SOLUSDT", "title": "SOL/USDT"},
+                {"proName": "NASDAQ:AAPL", "title": "Apple CFD"},
+                {"proName": "NASDAQ:NVDA", "title": "Nvidia CFD"}
+            ],
+            "showSymbolLogo": true,
+            "colorTheme": "dark",
+            "isTransparent": true,
+            "displayMode": "adaptive",
+            "locale": "ru"
             }
-            document.getElementById('prices-box').innerHTML = pHTML;
-            document.getElementById('signals-box').innerHTML = sHTML;
+            </script>
+        </div>
+    </div>
+
+    <!-- 2. Main Navigation Menu -->
+    <header>
+        <div class="logo">⚡ PRO TRADER VIP</div>
+        <nav>
+            <button class="nav-btn active" onclick="openTab('terminal')">📈 Терминал & Графики</button>
+            <button class="nav-btn" onclick="openTab('signals')">🎯 Сигналы Фьючерсы/CFD</button>
+            <button class="nav-btn" onclick="openTab('exchanges')">🏛 Биржи & Платформы</button>
+            <button class="nav-btn" onclick="openTab('wallet')">💎 Криптокошелек / VIP</button>
+        </nav>
+    </header>
+
+    <div class="container">
+
+        <!-- TAB 1: TERMINAL & CHARTS -->
+        <div id="terminal" class="tab-content active">
+            <div class="grid-2">
+                <div class="card">
+                    <h2>📊 Живой график (TradingView Pro)</h2>
+                    <div style="height: 520px;">
+                        <div class="tradingview-widget-container" style="height:100%;width:100%">
+                            <div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>
+                            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+                            {
+                            "autosize": true,
+                            "symbol": "BINANCE:BTCUSDT",
+                            "interval": "15",
+                            "timezone": "Etc/UTC",
+                            "theme": "dark",
+                            "style": "1",
+                            "locale": "ru",
+                            "allow_symbol_change": true,
+                            "calendar": false
+                            }
+                            </script>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="card">
+                        <h2>🤖 ИИ Технический Анализ</h2>
+                        <div style="height: 400px;">
+                            <div class="tradingview-widget-container">
+                                <div class="tradingview-widget-container__widget"></div>
+                                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js" async>
+                                {
+                                "interval": "1h",
+                                "width": "100%",
+                                "isTransparent": true,
+                                "height": "400",
+                                "symbol": "BINANCE:BTCUSDT",
+                                "showIntervalTabs": true,
+                                "locale": "ru",
+                                "colorTheme": "dark"
+                                }
+                                script>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- All Crypto Screener -->
+            <div class="card">
+                <h2>🚀 Обзор рынка криптовалют и CFD акций</h2>
+                <div style="height: 500px;">
+                    <div class="tradingview-widget-container">
+                        <div class="tradingview-widget-container__widget"></div>
+                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-screener.js" async>
+                        {
+                        "width": "100%",
+                        "height": "500",
+                        "defaultColumn": "overview",
+                        "screener_type": "crypto_mkt",
+                        "displayCurrency": "USD",
+                        "colorTheme": "dark",
+                        "locale": "ru"
+                        }
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: SIGNALS -->
+        <div id="signals" class="tab-content">
+            <div class="card">
+                <h2>⚡ Активные фьючерсные сигналы (Плечо х10-х20)</h2>
+                
+                <div class="signal-card">
+                    <div>
+                        <strong>BTC / USDT (Futures)</strong> <span class="badge bg-green">LONG 🟢</span><br>
+                        <small style="color:var(--text-sub);">Вход: $88,200 | Тейк-профит: $91,500 | Стоп-лосс: $86,800</small>
+                    </div>
+                    <div>
+                        <span style="color:var(--green); font-weight:bold;">Рост +120% (x20)</span>
+                    </div>
+                </div>
+
+                <div class="signal-card sell">
+                    <div>
+                        <strong>ETH / USDT (Futures)</strong> <span class="badge bg-red">SHORT 🔴</span><br>
+                        <small style="color:var(--text-sub);">Вход: $3,450 | Тейк-профит: $3,200 | Стоп-лосс: $3,520</small>
+                    </div>
+                    <div>
+                        <span style="color:var(--red); font-weight:bold;">Падение -80% (x10)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>📊 Акции & CFD Сигналы (Сток-маркет)</h2>
+                <div class="signal-card">
+                    <div>
+                        <strong>NVIDIA Corp (NVDA) CFD</strong> <span class="badge bg-green">BUY 🟢</span><br>
+                        <small style="color:var(--text-sub);">Цель: $155.00 | Целевой срок: 3-5 дней</small>
+                    </div>
+                    <div><span style="color:var(--green); font-weight:bold;">Рост +8.5%</span></div>
+                </div>
+                <div class="signal-card">
+                    <div>
+                        <strong>Tesla Inc (TSLA) CFD</strong> <span class="badge bg-green">BUY 🟢</span><br>
+                        <small style="color:var(--text-sub);">Цель: $260.00 | Пробой уровня сопротивления</small>
+                    </div>
+                    <div><span style="color:var(--green); font-weight:bold;">Рост +12.0%</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: EXCHANGES -->
+        <div id="exchanges" class="tab-content">
+            <div class="card">
+                <h2>🏛 Топ Торговые Платформы и Биржи</h2>
+                <p style="color: var(--text-sub); margin-bottom:20px;">Регистрируйтесь по официальным ссылкам для получения скидок на комиссию до 30%:</p>
+                
+                <div class="platforms-grid">
+                    <div class="platform-item">
+                        <h3>Bybit</h3>
+                        <p style="color:var(--text-sub); font-size:13px; margin: 8px 0;">Лучшая биржа для фьючерсов и P2P-вывода.</p>
+                        <a href="https://www.bybit.com" target="_blank" class="btn-trade">Торговать на Bybit</a>
+                    </div>
+                    <div class="platform-item">
+                        <h3>Binance</h3>
+                        <p style="color:var(--text-sub); font-size:13px; margin: 8px 0;">Биржа №1 в мире по объему торгов.</p>
+                        <a href="https://www.binance.com" target="_blank" class="btn-trade">Торговать на Binance</a>
+                    </div>
+                    <div class="platform-item">
+                        <h3>OKX</h3>
+                        <p style="color:var(--text-sub); font-size:13px; margin: 8px 0;">Отличный Web3 кошелек и сделки с плечом.</p>
+                        <a href="https://www.okx.com" target="_blank" class="btn-trade">Торговать на OKX</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: WALLET & MONETIZATION -->
+        <div id="wallet" class="tab-content">
+            <div class="card">
+                <h2>💎 Ваша панель приема криптовалюты (Донаты / VIP-подписка)</h2>
+                <p>Пользователи могут переводить вам криптовалюту на эти кошельки напрямую за доступ к VIP-сигналам или обучение.</p>
+                
+                <div class="wallet-box">
+                    <strong>USDT (Сеть TRC-20 / TRON):</strong>
+                    <div class="wallet-address">
+                        <span id="usdt-addr">TВашКошелекUsdtTRC20Пример1234567890</span>
+                        <button class="copy-btn" onclick="copyAddr('usdt-addr')">Копировать</button>
+                    </div>
+                </div>
+
+                <div class="wallet-box" style="margin-top:15px;">
+                    <strong>Bitcoin (BTC):</strong>
+                    <div class="wallet-address">
+                        <span id="btc-addr">1ВашBitcoinКошелекПример1234567890</span>
+                        <button class="copy-btn" onclick="copyAddr('btc-addr')">Копировать</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- JavaScript logic -->
+    <script>
+        function openTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
         }
 
-        setInterval(executeMarketTick, 2000);
-        executeMarketTick();
-
-        document.getElementById('photo-file').addEventListener('change', function(event) {
-            const files = event.target.files;
-            if (!files || files.length === 0) return;
-
-            const resBox = document.getElementById('analysis-result');
-            resBox.style.display = 'block';
-            resBox.innerText = '⚡ КВАНТОВЫЙ СКАНЕР: Сканирование матрицы свечей...';
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    const canvas = document.getElementById('core-canvas');
-                    const ctx = canvas.getContext('2d');
-                    canvas.width = 300; canvas.height = 150;
-                    ctx.drawImage(img, 0, 0, 300, 150);
-                    
-                    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    const pixels = imgData.data;
-                    let greenPixels = 0, redPixels = 0;
-                    
-                    for (let i = 0; i < pixels.length; i += 4) {
-                        const r = pixels[i], g = pixels[i+1], b = pixels[i+2];
-                        if (g > r * 1.15 && g > b) greenPixels++;
-                        if (r > g * 1.15 && r > b) redPixels++;
-                    }
-                    
-                    let verdict = "💎 СИСТЕМНЫЙ ИИ-ВЕРДИКТ ГРАФИКА:\n\n";
-                    if (greenPixels === 0 && redPixels === 0) {
-                        verdict += "❌ Снимок не распознан. Сделайте чистый скриншот графика котировок.";
-                    } else {
-                        const balanceRatio = greenPixels / (redPixels + 1);
-                        if (balanceRatio > 1.2) {
-                            verdict += "🎯 СИГНАЛ: БЫЧЬЯ ДОМИНАЦИЯ (STRONG LONG)\n\n• Структурный анализ: График заполнен сильными восходящими свечами покупок.\n• Рекомендация: Поиск точек входа в LONG на локальных откатах от уровней поддержки.";
-                        } else if (balanceRatio < 0.8) {
-                            verdict += "🎯 СИГНАЛ: МЕДВЕЖИЙ ПРОЛИВ РЫНКА (STRONG SHORT)\n\n• Структурный анализ: Выявлено тотальное преобладание красных свечей падения.\n• Рекомендация: Вход в SHORT-позиции, покупки полностью исключены до разворота тренда.";
-                        } else {
-  
+        function copyAddr(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(text);
+            alert("Адрес кошелька скопирован: " + text);
+        }
+    </script>
+</body>
+</html>
